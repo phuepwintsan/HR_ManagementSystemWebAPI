@@ -59,9 +59,9 @@ namespace HR_ManagementSystemWebAPI.Controllers
 
         [HttpGet("{id}")]
         [EndpointSummary("Get by State Id")]
-        public async Task<IActionResult> GetbyStateId(int stateId)
+        public async Task<IActionResult> GetbyStateId(int id)
         {
-            var states = await _context.HrStates.FirstOrDefaultAsync(x => x.StateId == stateId);
+            var states = await _context.HrStates.FirstOrDefaultAsync(x => x.StateId == id);
             if (states == null)
             {
                 return BadRequest(new DefaultResponseModel()
@@ -84,7 +84,7 @@ namespace HR_ManagementSystemWebAPI.Controllers
 
         [HttpPut("{id}")]
         [EndpointSummary("Update States")]
-        public async Task<IActionResult> UpdateState(int id, string newname)
+        public async Task<IActionResult> UpdateState(int id)
         {
             var state = await _context.HrStates.FirstOrDefaultAsync(x => x.StateId == id);
             if (state == null)
@@ -98,7 +98,6 @@ namespace HR_ManagementSystemWebAPI.Controllers
                 });
             }
 
-            state.StateName = newname;
             await _context.SaveChangesAsync();
             return Ok(new DefaultResponseModel()
             {
