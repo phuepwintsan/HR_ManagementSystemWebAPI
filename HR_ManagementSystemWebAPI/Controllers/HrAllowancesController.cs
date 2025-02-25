@@ -83,7 +83,7 @@ namespace HR_ManagementSystemWebAPI.Controllers
 
         [HttpPut("{id}")]
         [EndpointSummary("Update Allowance")]
-        public async Task<IActionResult> UpdateAllowance(long id, string newname)
+        public async Task<IActionResult> UpdateAllowance(long id, HrAllowance hrallowance)
         {
             HrAllowance? allowance = await _context.HrAllowances.FirstOrDefaultAsync(x => x.AllowanceId == id);
             if (allowance == null)
@@ -97,7 +97,8 @@ namespace HR_ManagementSystemWebAPI.Controllers
                 });
             }
 
-            allowance.AllowanceName = newname;
+            allowance.AllowanceName = hrallowance.AllowanceName;
+            allowance.BranchId = hrallowance.BranchId;
             _ = await _context.SaveChangesAsync();
             return Created("api/HrAllowances", new DefaultResponseModel()
             {
