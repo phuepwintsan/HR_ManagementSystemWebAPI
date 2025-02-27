@@ -34,7 +34,7 @@ namespace HR_ManagementSystemWebAPI.Controllers
 
         [HttpPost]
         [EndpointSummary("Create Allowance")]
-        public async Task<IActionResult> CreateAllowance([FromForm] HrAllowance allowance)
+        public async Task<IActionResult> CreateAllowance([FromBody] HrAllowance allowance)
         {
             if (await _context.HrAllowances.AnyAsync(x => x.AllowanceId == allowance.AllowanceId))
             {
@@ -50,7 +50,7 @@ namespace HR_ManagementSystemWebAPI.Controllers
             _ = _context.HrAllowances.Add(allowance);
             _ = await _context.SaveChangesAsync();
 
-            return Created("api/HrAllowance", new DefaultResponseModel()
+            return Created("api/HrAllowances", new DefaultResponseModel()
             {
                 Success = true,
                 Statuscode = StatusCodes.Status200OK,
@@ -99,6 +99,9 @@ namespace HR_ManagementSystemWebAPI.Controllers
 
             allowance.AllowanceName = hrallowance.AllowanceName;
             allowance.BranchId = hrallowance.BranchId;
+            allowance.UpdatedBy = "Admin";
+            allowance.UpdatedOn = DateTime.Now;
+            allowance.Description = hrallowance.Description;
             _ = await _context.SaveChangesAsync();
             return Created("api/HrAllowances", new DefaultResponseModel()
             {
