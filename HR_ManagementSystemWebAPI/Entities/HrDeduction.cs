@@ -47,10 +47,4 @@ public partial class HrDeduction
     public string? DeletedBy { get; set; }
 
     public string? Remark { get; set; }
-
-    [InverseProperty("Deduction")]
-    public virtual ICollection<HrEmployeeDeduction> HrEmployeeDeductions { get; set; } = new List<HrEmployeeDeduction>();
-
-    [InverseProperty("Deduction")]
-    public virtual ICollection<HrRule> HrRules { get; set; } = new List<HrRule>();
 }

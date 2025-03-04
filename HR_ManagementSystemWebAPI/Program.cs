@@ -122,7 +122,7 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     // Map Scalar UI
-    app.MapScalarApiReference("/docs/scalar");
+    app.MapScalarApiReference("/docs/scalar/");
 }
 
 app.UseHttpsRedirection();
