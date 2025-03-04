@@ -1,6 +1,5 @@
 ﻿using HR_ManagementSystemWebAPI.Data;
 using HR_ManagementSystemWebAPI.Entities;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,17 +15,31 @@ namespace HR_ManagementSystemWebAPI.Controllers
         {
             _context = context;
         }
+
+        //[HttpGet("by-companyName")]
+        //[EndpointSummary("Get all Companies")]
+        //public async Task<IActionResult> GetAllCompanies()
+        //{
+        //    List<HrCompany> company = await _context.HrCompanies.ToListAsync();
+        //    return Ok(new DefaultResponseModel()
+        //    {
+        //        Success = true,
+        //        Statuscode = StatusCodes.Status200OK,
+        //        Data = company,
+        //        Message = "List all Companies"
+        //    });
+        //}
+
         [HttpGet]
-        [EndpointSummary("Get all Companies")]
-        public async Task<IActionResult> GetAllCompanies()
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(List<ViHrCompany>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAsync()
         {
-            List<HrCompany> company = await _context.HrCompanies.ToListAsync();
             return Ok(new DefaultResponseModel()
             {
                 Success = true,
                 Statuscode = StatusCodes.Status200OK,
-                Data = company,
-                Message = "List all Companies"
+                Data = await _context.ViHrCompanies.Where(x => !x.DeletedOn.HasValue).ToListAsync()
             });
         }
 
@@ -45,8 +58,8 @@ namespace HR_ManagementSystemWebAPI.Controllers
                 });
             }
 
-            _context.HrCompanies.Add(hrCompany);
-            await _context.SaveChangesAsync();
+            _ = _context.HrCompanies.Add(hrCompany);
+            _ = await _context.SaveChangesAsync();
 
             return Created("api/HrCompanies", new DefaultResponseModel()
             {
@@ -57,36 +70,56 @@ namespace HR_ManagementSystemWebAPI.Controllers
             });
         }
 
+        [HttpGet("by-companyid")]
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(ViHrCompany), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(DefaultResponseModel), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ViHrCompany?>> GetByIdAsync(string id)
+        {
+            List<ViHrCompany> ViCompany = await _context.ViHrCompanies.Where(x => x.CompanyId == id).ToListAsync();
+            return ViCompany != null
+                ? Ok(new DefaultResponseModel()
+                {
+                    Success = true,
+                    Statuscode = StatusCodes.Status200OK,
+                    Data = ViCompany,
+                    Message = "Company data found."
+                })
+                : NotFound(new DefaultResponseModel()
+                {
+                    Success = false,
+                    Statuscode = StatusCodes.Status404NotFound,
+                    Message = "Company data not found."
+                });
+        }
+
         [HttpGet("{id}")]
         [EndpointSummary("Get by CompanyId")]
         public async Task<IActionResult> GetByCompanyId(string id)
         {
-            var company = await _context.HrCompanies.FirstOrDefaultAsync(x => x.CompanyId == id);
-            if (company == null)
-            {
-                return BadRequest(new DefaultResponseModel()
+            HrCompany? company = await _context.HrCompanies.FirstOrDefaultAsync(x => x.CompanyId == id);
+            return company == null
+                ? BadRequest(new DefaultResponseModel()
                 {
                     Success = false,
                     Statuscode = StatusCodes.Status400BadRequest,
                     Data = null,
                     Message = "Company Id doesn't exist"
+                })
+                : Ok(new DefaultResponseModel()
+                {
+                    Success = true,
+                    Statuscode = StatusCodes.Status200OK,
+                    Data = company,
+                    Message = "Ok"
                 });
-            }
-
-            return Ok(new DefaultResponseModel()
-            {
-                Success = true,
-                Statuscode = StatusCodes.Status200OK,
-                Data = company,
-                Message = "Ok"
-            });
         }
 
         [HttpPut("{id}")]
         [EndpointSummary("Update by company id")]
         public async Task<IActionResult> UpdateByCompanyId(string id, [FromBody] HrCompany hrCompany)
         {
-            var company = await _context.HrCompanies.FirstOrDefaultAsync(x => x.CompanyId == id);
+            HrCompany? company = await _context.HrCompanies.FirstOrDefaultAsync(x => x.CompanyId == id);
             if (company == null)
             {
                 return BadRequest(new DefaultResponseModel()
@@ -109,7 +142,7 @@ namespace HR_ManagementSystemWebAPI.Controllers
             company.UpdatedBy = hrCompany.UpdatedBy;
             company.UpdatedOn = DateTime.Now;
 
-            await _context.SaveChangesAsync();
+            _ = await _context.SaveChangesAsync();
             return Ok(new DefaultResponseModel()
             {
                 Success = true,
@@ -123,7 +156,7 @@ namespace HR_ManagementSystemWebAPI.Controllers
         [EndpointSummary("Delete by company Id")]
         public async Task<IActionResult> DeleteByCompanyId(string id)
         {
-            var company = await _context.HrCompanies.FindAsync(id);
+            HrCompany? company = await _context.HrCompanies.FindAsync(id);
             if (company == null)
             {
                 return BadRequest(new DefaultResponseModel()
@@ -135,11 +168,11 @@ namespace HR_ManagementSystemWebAPI.Controllers
                 });
             }
 
-            _context.HrCompanies.Remove(company);
-            await _context.SaveChangesAsync();
+            _ = _context.HrCompanies.Remove(company);
+            _ = await _context.SaveChangesAsync();
 
-            return Ok(new DefaultResponseModel() 
-            { 
+            return Ok(new DefaultResponseModel()
+            {
                 Success = true,
                 Statuscode = StatusCodes.Status200OK,
                 Data = company,

@@ -17,19 +17,96 @@ namespace HR_ManagementSystemWebAPI.Controllers
             _context = context;
         }
 
+        //[HttpGet]
+        //[EndpointSummary("Get all Departments")]
+        //public async Task<IActionResult> GetallDepartments()
+        //{
+        //    List<HrDepartment> department = await _context.HrDepartments.ToListAsync();
+        //    return Ok(new DefaultResponseModel()
+        //    {
+        //        Success = true,
+        //        Statuscode = StatusCodes.Status200OK,
+        //        Data = department,
+        //        Message = "List of all Department"
+        //    });
+        //}
+
         [HttpGet]
-        [EndpointSummary("Get all Departments")]
-        public async Task<IActionResult> GetallDepartments()
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(List<ViHrDepartment>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAsync()
         {
-            List<HrDepartment> department = await _context.HrDepartments.ToListAsync();
+            return Ok(new DefaultResponseModel()
+            {
+                Success = true,
+                Statuscode = StatusCodes.Status200OK,
+                Data = await _context.ViHrDepartments.Where(x => !x.DeletedOn.HasValue).ToListAsync()
+            });
+        }
+
+        [HttpGet("by-departmentId")]
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(List<ViHrDepartment>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(DefaultResponseModel), StatusCodes.Status404NotFound)]
+
+        public async Task<ActionResult<ViHrDepartment?>> GetByIdAsync(long id)
+        {
+            var viDepartment = await _context.ViHrDepartments.Where(x => x.DeptId == id).ToListAsync();
+            return viDepartment != null
+                ? Ok(new DefaultResponseModel()
+                {
+                    Success = true,
+                    Statuscode = StatusCodes.Status200OK,
+                    Data = viDepartment,
+                    Message = "Department Data Found."
+                })
+                : NotFound(new DefaultResponseModel()
+                {
+                    Success = false,
+                    Statuscode = StatusCodes.Status404NotFound,
+                    Message = "Department Data Not Found."
+                });
+        }
+
+        [HttpGet("by-CBid")]
+        public async Task<IActionResult> GetByCompanyByBranchAsync(string companyid, long? branchid)
+        {
+            IReadOnlyList<ViHrDepartment>? department = [];
+
+            // CompanyId, BranchId
+            if (!string.IsNullOrEmpty(companyid) && branchid.HasValue)
+            {
+                department = await _context.ViHrDepartments.Where(x =>
+                !x.DeletedOn.HasValue && x.CompanyId == companyid && x.BranchId == branchid).ToListAsync();
+            }
+            else if (!string.IsNullOrEmpty(companyid))
+            {
+                department = await _context.ViHrDepartments.Where(x =>
+                !x.DeletedOn.HasValue && x.CompanyId == companyid).ToListAsync();
+            }
+
             return Ok(new DefaultResponseModel()
             {
                 Success = true,
                 Statuscode = StatusCodes.Status200OK,
                 Data = department,
-                Message = "List of all Department"
             });
         }
+
+        [HttpGet("byName")]
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(List<ViHrDepartment>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetByNameAsync(string deptName, string companyId, long? branchId)
+        {
+            return Ok(new DefaultResponseModel()
+            {
+                Success = true,
+                Statuscode = StatusCodes.Status200OK,
+                Data = await _context.ViHrDepartments.Where(x => !x.DeletedOn.HasValue && x.DeptName == deptName && x.CompanyId == companyId && x.BranchId == branchId).ToListAsync(),
+                Message = "Department Is Already Exist."
+            });
+        }
+
         [HttpPost]
         [EndpointSummary("Create Department")]
         public async Task<IActionResult> CreateDepartment([FromForm] HrDepartment department)

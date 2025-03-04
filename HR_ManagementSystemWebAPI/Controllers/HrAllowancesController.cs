@@ -102,6 +102,10 @@ namespace HR_ManagementSystemWebAPI.Controllers
             allowance.UpdatedBy = "Admin";
             allowance.UpdatedOn = DateTime.Now;
             allowance.Description = hrallowance.Description;
+            allowance.CompanyId = hrallowance.CompanyId;
+            allowance.DeptId = hrallowance.DeptId;
+            allowance.PositionId = hrallowance.PositionId;
+           
             _ = await _context.SaveChangesAsync();
             return Created("api/HrAllowances", new DefaultResponseModel()
             {

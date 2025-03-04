@@ -2,6 +2,7 @@
 using HR_ManagementSystemWebAPI.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace HR_ManagementSystemWebAPI.Controllers
 {
@@ -16,18 +17,61 @@ namespace HR_ManagementSystemWebAPI.Controllers
             _context = context;
         }
 
+        //[HttpGet]
+        //[EndpointSummary("Get all Positions")]
+        //public async Task<IActionResult> GetallPositions()
+        //{
+        //    List<HrPosition> positions = await _context.HrPositions.ToListAsync();
+        //    _ = positions.Count;
+        //    return Ok(new DefaultResponseModel
+        //    {
+        //        Success = true,
+        //        Statuscode = StatusCodes.Status200OK,
+        //        Data = positions,
+        //        Message = "List of all HR position"
+        //    });
+        //}
+
         [HttpGet]
-        [EndpointSummary("Get all Positions")]
-        public async Task<IActionResult> GetallPositions()
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(List<ViHrPosition>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAsync()
         {
-            List<HrPosition> positions = await _context.HrPositions.ToListAsync();
-            _ = positions.Count;
-            return Ok(new DefaultResponseModel
+            return Ok(new DefaultResponseModel()
             {
                 Success = true,
                 Statuscode = StatusCodes.Status200OK,
-                Data = positions,
-                Message = "List of all HR position"
+                Data = await _context.ViHrPositions.Where(x => !x.DeletedOn.HasValue).ToListAsync()
+            });
+        }
+
+        [HttpGet("by-CBDid")]
+        public async Task<IActionResult> GetByCompanyAsync(string companyid, long? branchid, long? deptId)
+        {
+            IReadOnlyList<ViHrPosition>? position = [];
+
+            // CompanyId, BranchId, DepartmentId
+            if (!string.IsNullOrEmpty(companyid) && branchid.HasValue && deptId.HasValue)
+            {
+                position = await _context.ViHrPositions.Where(x =>
+                !x.DeletedOn.HasValue && x.CompanyId == companyid && x.BranchId == branchid && x.DeptId == deptId).ToListAsync();
+            }
+            else if (!string.IsNullOrEmpty(companyid) && branchid.HasValue)
+            {
+                position = await _context.ViHrPositions.Where(x =>
+                !x.DeletedOn.HasValue && x.CompanyId == companyid && x.BranchId == branchid).ToListAsync();
+            }
+            else if (!string.IsNullOrEmpty(companyid))
+            {
+                position = await _context.ViHrPositions.Where(x =>
+                !x.DeletedOn.HasValue && x.CompanyId == companyid).ToListAsync();
+            }
+
+            return Ok(new DefaultResponseModel()
+            {
+                Success = true,
+                Statuscode = StatusCodes.Status200OK,
+                Data = position,
             });
         }
 
@@ -59,6 +103,29 @@ namespace HR_ManagementSystemWebAPI.Controllers
         }
 
         [HttpGet("{id}")]
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(ViHrPosition), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(DefaultResponseModel), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ViHrPosition?>> GetByIdAsync(long id)
+        {
+            var ViPosition = await _context.ViHrPositions.Where(x=>x.PositionId==id).ToListAsync();
+            return ViPosition != null
+                ? Ok(new DefaultResponseModel()
+                {
+                    Success = true,
+                    Statuscode = StatusCodes.Status200OK,
+                    Data = ViPosition,
+                    Message = "Position datat found."
+                })
+                : NotFound(new DefaultResponseModel()
+                {
+                    Success = false,
+                    Statuscode = StatusCodes.Status404NotFound,
+                    Message = "Position data not found."
+                });
+        }
+
+        [HttpGet("by-positionid")]
         [EndpointSummary("Get by PositionId")]
         public async Task<IActionResult> GetbyPositionId(long id)
         {
