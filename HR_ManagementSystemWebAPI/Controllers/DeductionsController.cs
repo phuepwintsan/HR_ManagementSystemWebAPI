@@ -27,17 +27,17 @@ namespace HR_ManagementSystemWebAPI.Controllers
 
         [HttpGet("by-CBDPid")]
         [EndpointSummary("Get by CBDPid")]
-        public async Task<IActionResult> GetByCompanyAsync(string companyId, long? branchId, long? dept, long? positionId)
+        public async Task<IActionResult> GetByCompanyAsync(string companyId, long? branchId, long? dept)
         {
             IReadOnlyList<ViHrDeduction> deduction = [];
 
 
-            if (!string.IsNullOrEmpty(companyId) && branchId.HasValue && dept.HasValue && positionId.HasValue)
-            {
-                deduction = await _context.ViHrDeductions.Where(x =>
-                !x.DeletedOn.HasValue && x.CompanyId == companyId && x.BranchId == branchId && x.DeptId == dept).ToListAsync();
-            }
-            else if (!string.IsNullOrEmpty(companyId) && branchId.HasValue && dept.HasValue)
+            //if (!string.IsNullOrEmpty(companyId) && branchId.HasValue && dept.HasValue && positionId.HasValue)
+            //{
+            //    deduction = await _context.ViHrDeductions.Where(x =>
+            //    !x.DeletedOn.HasValue && x.CompanyId == companyId && x.BranchId == branchId && x.DeptId == dept).ToListAsync();
+            //}
+            if (!string.IsNullOrEmpty(companyId) && branchId.HasValue && dept.HasValue)
             {
                 deduction = await _context.ViHrDeductions.Where(x =>
                 !x.DeletedOn.HasValue && x.CompanyId == companyId && x.BranchId == branchId && x.DeptId == dept).ToListAsync();
@@ -61,7 +61,7 @@ namespace HR_ManagementSystemWebAPI.Controllers
             });
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("by-Id")]
         [EndpointSummary("Get by DeductionId")]
         public async Task<ActionResult<ViHrDeduction>> GetByIdAsync(long deductionId)
         {
@@ -95,33 +95,6 @@ namespace HR_ManagementSystemWebAPI.Controllers
             });
         }
 
-        //[HttpPost]
-        //[EndpointSummary("Create Deduction")]
-        //public async Task<IActionResult> CreateAllowance([FromBody] HrAllowance deduction)
-        //{
-        //    if (await _context.HrAllowances.AnyAsync(x => x.a == deduction.DeductionId))
-        //    {
-        //        return BadRequest(new DefaultResponseModel()
-        //        {
-        //            Success = false,
-        //            Statuscode = StatusCodes.Status400BadRequest,
-        //            Data = null,
-        //            Message = "DeductionId is already exist"
-        //        });
-        //    }
-
-        //    _ = _context.HrDeductions.Add(deduction);
-        //    _ = await _context.SaveChangesAsync();
-
-        //    return Created("api/HrAllowances", new DefaultResponseModel()
-        //    {
-        //        Success = true,
-        //        Statuscode = StatusCodes.Status200OK,
-        //        Data = deduction,
-        //        Message = "Created successfully"
-        //    });
-        //}
-
         [HttpPost]
         [EndpointSummary("Create Deduction")]
         public async Task<IActionResult> CreateDeduction([FromBody] HrDeduction hrDeduction)
@@ -140,7 +113,7 @@ namespace HR_ManagementSystemWebAPI.Controllers
             _context.HrDeductions.Add(hrDeduction);
             await _context.SaveChangesAsync();
 
-            return Ok(new DefaultResponseModel()
+            return Created("api/Deductions", new DefaultResponseModel()
             {
                 Success = true,
                 Statuscode = StatusCodes.Status200OK,
@@ -150,9 +123,10 @@ namespace HR_ManagementSystemWebAPI.Controllers
         }
 
         [HttpPut("{id}")]
+        [EndpointSummary("Update by deuction")]
         public async Task<IActionResult> UpdateDeduction(long id, [FromBody] HrDeduction hrDeduction)
         {
-            var deduction = await _context.HrDeductions.FirstOrDefaultAsync(x => x.DeductionId == id);
+            var deduction = await _context.HrDeductions.FindAsync(id);
             if (deduction == null)
             {
                 return BadRequest(new DefaultResponseModel()
@@ -176,6 +150,7 @@ namespace HR_ManagementSystemWebAPI.Controllers
             deduction.UpdatedBy = hrDeduction.UpdatedBy;
             deduction.UpdatedOn = DateTime.Now;
 
+             _context.HrDeductions.Update(deduction);
             await _context.SaveChangesAsync();
 
             return Ok(new DefaultResponseModel()
@@ -188,7 +163,7 @@ namespace HR_ManagementSystemWebAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        [EndpointSummary("Delete by deductin Id")]
+        [EndpointSummary("Delete by deduction Id")]
         public async Task<IActionResult> DeleteByDeductionId(long id)
         {
             var deduction = await _context.HrDeductions.FindAsync(id);
@@ -203,6 +178,7 @@ namespace HR_ManagementSystemWebAPI.Controllers
                 });
             }
 
+            _context.HrDeductions.Remove(deduction);
             await _context.SaveChangesAsync();
             return Ok(new DefaultResponseModel()
             {
