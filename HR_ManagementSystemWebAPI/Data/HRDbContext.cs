@@ -275,9 +275,9 @@ public partial class HRDbContext : DbContext
 
         modelBuilder.Entity<HrEmployeeDeduction>(entity =>
         {
-            //entity.HasOne(d => d.Deduction).WithMany(p => p.HrEmployeeDeductions)
-            //    .OnDelete(DeleteBehavior.ClientSetNull)
-            //    .HasConstraintName("FK_HR_Employee_Deduction_HR_Deduction");
+            entity.HasOne(d => d.Deduction).WithMany(p => p.HrEmployeeDeductions)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_HR_Employee_Deduction_HR_Deduction");
 
             entity.HasOne(d => d.Employee).WithMany(p => p.HrEmployeeDeductions)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -395,9 +395,9 @@ public partial class HRDbContext : DbContext
         {
             entity.Property(e => e.RuleId).ValueGeneratedOnAdd();
 
-            //entity.HasOne(d => d.Deduction).WithMany(p => p.HrRules)
-            //    .OnDelete(DeleteBehavior.ClientSetNull)
-            //    .HasConstraintName("FK_HR_Rule_HR_Deduction");
+            entity.HasOne(d => d.Deduction).WithMany(p => p.HrRules)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_HR_Rule_HR_Deduction");
         });
 
         modelBuilder.Entity<HrState>(entity =>
