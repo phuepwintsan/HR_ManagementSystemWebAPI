@@ -54,6 +54,6 @@ public partial class HrJobOpening
 
     public string? Remark { get; set; }
 
-    [InverseProperty("Job")]
-    public virtual ICollection<HrJobApplicant> HrJobApplicants { get; set; } = new List<HrJobApplicant>();
+    //[InverseProperty("Job")]
+    //public virtual ICollection<HrJobApplicant> HrJobApplicants { get; set; } = new List<HrJobApplicant>();
 }

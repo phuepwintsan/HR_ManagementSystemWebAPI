@@ -75,7 +75,7 @@ public partial class HrJobApplicant
     [InverseProperty("HrJobApplicants")]
     public virtual HrEmployee? Employee { get; set; }
 
-    [ForeignKey("JobId")]
-    [InverseProperty("HrJobApplicants")]
-    public virtual HrJobOpening Job { get; set; } = null!;
+    //[ForeignKey("JobId")]
+    //[InverseProperty("HrJobApplicants")]
+    //public virtual HrJobOpening Job { get; set; } = null!;
 }

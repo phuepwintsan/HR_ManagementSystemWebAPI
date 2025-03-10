@@ -347,11 +347,11 @@ public partial class HRDbContext : DbContext
 
             entity.Property(e => e.Gender).IsFixedLength();
 
-            entity.HasOne(d => d.Employee).WithMany(p => p.HrJobApplicants).HasConstraintName("FK_HR_Job_Applicant_HR_Employee");
+            //entity.HasOne(d => d.Employee).WithMany(p => p.HrJobApplicants).HasConstraintName("FK_HR_Job_Applicant_HR_Employee");
 
-            entity.HasOne(d => d.Job).WithMany(p => p.HrJobApplicants)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_HR_Job_Applicant_HR_Job_Opening");
+            //entity.HasOne(d => d.Job).WithMany(p => p.HrJobApplicants)
+            //    .OnDelete(DeleteBehavior.ClientSetNull)
+            //    .HasConstraintName("FK_HR_Job_Applicant_HR_Job_Opening");
         });
 
         modelBuilder.Entity<HrLeaveGroup>(entity =>
