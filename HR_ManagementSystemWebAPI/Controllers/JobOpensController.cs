@@ -69,6 +69,7 @@ namespace HR_ManagementSystemWebAPI.Controllers
 
             _context.HrJobOpenings.Add(jobOpening);
            var result = await _context.SaveChangesAsync();
+
             return result > 0 ?
              Created("api/JobOpens", new DefaultResponseModel()
              {
@@ -121,14 +122,21 @@ namespace HR_ManagementSystemWebAPI.Controllers
 
             //_context.HrJobOpenings.Update(jobOpening);
             _context.Entry(jobOpening).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            var result = await _context.SaveChangesAsync();
 
-            return Ok(new DefaultResponseModel()
+            return (result > 0) ? Ok(new DefaultResponseModel()
             {
                 Success = true,
                 Statuscode = StatusCodes.Status200OK,
                 Data = jobOpening,
                 Message = "Updated Successfully"
+            }) :
+            BadRequest(new DefaultResponseModel()
+            {
+                Success = false,
+                Statuscode = StatusCodes.Status400BadRequest,
+                Data = null,
+                Message = "Job opening Id doesn't exist"
             });
         }
 
